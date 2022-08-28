@@ -1,0 +1,9 @@
+package com.weirdman.main.api;
+
+public class PathParamService {
+
+	public PathParamService() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

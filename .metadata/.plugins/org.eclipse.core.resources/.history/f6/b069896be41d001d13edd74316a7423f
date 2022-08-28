@@ -1,0 +1,57 @@
+package com.weirdman.demo.service;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import com.weirdman.demo.threads.FileWriterThread;
+import com.weirdman.demo.threads.StartWorkers;
+
+@Service
+public class ApiServiceClass {
+
+	private static final Logger logger = LoggerFactory.getLogger(ApiServiceClass.class);
+
+	public ApiServiceClass() {
+	}
+
+	private static volatile int fileID = 1;
+	public static volatile List<Integer> requestQueue = new LinkedList<Integer>();
+	// static volatile StartWorkers worker = new StartWorkers();
+	// public static volatile Thread workerThread = new
+	// Thread(worker,"worker_thread");
+	public static volatile int runningThread = 0;
+	ScheduledExecutorService exService = Executors.newSingleThreadScheduledExecutor();
+
+	public int service() {
+		fileID = fileID + 1;
+		if (requestQueue.size() < 5) {
+			requestQueue.add(fileID);
+		} else {
+			return 0;
+		}
+
+		exService.scheduleAtFixedRate(() -> {
+			logger.info("check if queue has elements:"+requestQueue.size());
+			if (requestQueue.size() > 0 && runningThread == 0) {
+				logger.info("request queue size is greater than 0"+requestQueue.size());
+				StartWorkers worker = new StartWorkers();
+				Thread workerThread = new Thread(worker, "worker_thread");
+				workerThread.start();
+			} else if (requestQueue.size() == 0 ){
+				logger.info("request queue is empty");
+				exService.shutdown();
+			}
+		}, 0, 15, TimeUnit.SECONDS);
+
+		return fileID;
+	}
+
+}

@@ -1,0 +1,73 @@
+package com.weirdman.demo.threads;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.weirdman.main.service.ApiServiceClass;
+
+public class StartWorkers implements Runnable{
+	
+	private static final Logger logger = LoggerFactory.getLogger(StartWorkers.class);
+	
+	public StartWorkers() {
+	}
+
+	@Override
+	public void run() {
+		Integer fileID = ApiServiceClass.requestQueue.get(0);
+		ApiServiceClass.runningThread = 1 ;
+		startWorkers(fileID);
+
+	}
+	
+	private void startWorkers(int fileID) {
+		logger.info("file id::"+fileID);
+		
+		FileWriterThread f1 = new FileWriterThread();
+		FileWriterThread f2 = new FileWriterThread();
+		FileWriterThread f3 = new FileWriterThread();
+		FileWriterThread f4 = new FileWriterThread();
+
+		Thread t1 = new Thread(f1,"first_thread"+fileID);
+		Thread t2 = new Thread(f2,"second_thread"+fileID);
+		Thread t3 = new Thread(f3,"third_thread"+fileID);
+		Thread t4 = new Thread(f4,"fourth_thread"+fileID);
+		
+		t1.start();
+		t2.start();
+		t3.start();
+		t4.start();
+		
+		ScheduledExecutorService exService = Executors.newSingleThreadScheduledExecutor();
+		exService.scheduleAtFixedRate(()->{
+			logger.info("check if t1 thread is live::"+t1.isAlive());
+			logger.info("check if t2 thread is live::"+t2.isAlive());
+			logger.info("check if t3 thread is live::"+t3.isAlive());
+			logger.info("check if t4 thread is live::"+t4.isAlive());
+			
+			if (!t1.isAlive() &&  !t2.isAlive() && !t3.isAlive() &&  !t4.isAlive()) {
+				logger.info("all thread has completed **dhan tada**");
+				ApiServiceClass.requestQueue.remove(0);
+				ApiServiceClass.runningThread = 0 ;
+				logger.info("file id processed::"+fileID);
+				logger.info("requestQueue siz after file processed::"+ApiServiceClass.requestQueue.size());
+				exService.shutdown();
+			}
+			
+			
+		}, 0, 15, TimeUnit.SECONDS);
+		/*
+		 *Parameters:command the task to execute
+		 *initialDelay: the time to delay first execution
+		 *period: the period between successive executions 
+		 *unit: the time unit of the initialDelay and period parameters
+		 *  
+		*/
+		logger.info("worker ended");
+	}
+
+}

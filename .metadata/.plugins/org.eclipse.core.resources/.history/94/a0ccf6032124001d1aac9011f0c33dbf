@@ -1,0 +1,31 @@
+package com.weirdman.demo.threads;
+
+import java.util.Date;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.weirdman.main.service.ApiServiceClass;
+
+public class FileWriterThread implements Runnable{
+	
+	private static final Logger logger = LoggerFactory.getLogger(FileWriterThread.class);
+	
+	public FileWriterThread() {
+	}
+
+	@Override
+	public void run() {
+		
+		logger.info("Performing file writing operation started:"+Thread.currentThread().getName());
+		try {
+			Thread.sleep(20000);//10000 10 sec
+		} catch (InterruptedException e) {e.printStackTrace();}
+		
+		
+		
+		logger.info("ile oepration writing ended successfully:"+Thread.currentThread().getName());
+		
+	}
+
+}

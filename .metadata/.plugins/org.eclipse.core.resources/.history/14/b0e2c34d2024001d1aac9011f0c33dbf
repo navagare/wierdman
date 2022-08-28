@@ -1,0 +1,49 @@
+package com.weirdman.demo;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.weirdman.demo.service.ApiServiceClass;
+
+@SpringBootApplication
+@RestController
+@RequestMapping("weirdman")
+public class WeirdManApplication {
+	
+	@Autowired
+	private ApiServiceClass apiServiceClass; 
+
+	@GetMapping({ "/weirdman.com", "weirdman" })
+	String home() {
+		return "SpringBoot is here!";
+	}
+	
+	@GetMapping({ "/multithreading" })
+	String multithreading() {
+		
+		apiServiceClass.service();
+		return "multithraeding is here!";
+	}
+	
+	@GetMapping({ "/path-variable/{name}" })
+	String pathVariableTest(String name) {
+		
+		apiServiceClass.service();
+		return "my nam is :"+name;
+	}
+	
+	@GetMapping({ "/path-variable/{name}" })
+	String pathVariableTest1(String name) {
+		
+		apiServiceClass.service();
+		return "my nam is :"+name;
+	}
+
+	public static void main(String[] args) {
+		SpringApplication.run(WeirdManApplication.class, args);
+	}
+}

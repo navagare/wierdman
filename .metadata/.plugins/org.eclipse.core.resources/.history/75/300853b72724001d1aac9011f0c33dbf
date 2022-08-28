@@ -1,0 +1,8 @@
+package com.weirdman.main.api;
+
+public class Snippet {
+	public static void main(String[] args) {
+		spring-boot-maven-plugin<
+	}
+}
+
